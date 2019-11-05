@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Responsive Fabric.js Canvas</title>
+	<style>
+		.container {
+			display: inline-flex;
+			flex-direction: row;
+			background-color: #ff6600;
+			width: 1200px;
+			padding-left: 0;
+			-webkit-transition: all 0.5s ease;
+			-moz-transition: all 0.5s ease;
+			-o-transition: all 0.5s ease;
+			transition: all 0.5s ease;
+			position: relative;
+			overflow: hidden;
+			height: 800px;
+		}
+
+		.canvas_container {
+			background-color: #ccc;
+			width: 1200px;
+			-webkit-transition: all 0.5s ease;
+			-moz-transition: all 0.5s ease;
+			-o-transition: all 0.5s ease;
+			transition: all 0.5s ease;
+		}
+
+		#myCanvas {
+			-webkit-transition: all 0.5s ease;
+			-moz-transition: all 0.5s ease;
+			-o-transition: all 0.5s ease;
+			transition: all 0.5s ease;
+		}
+
+		.sidebar {
+			background-color: green;
+			flex-basis: 320px;
+			z-index: 1000;
+			position: absolute;
+			right: 0;
+			width: 300px;
+			height: 800px;
+			margin-right: -300px;
+
+			-webkit-transition: all 0.5s ease;
+			-moz-transition: all 0.5s ease;
+			-o-transition: all 0.5s ease;
+			transition: all 0.5s ease;
+		}
+
+		.container.toggled .sidebar {
+			margin-right: 0;
+		}
+
+		/* .buttons_container {
+			position: fixed;
+			top: 20px;
+			z-index: 99;
+			left: 20px;
+		} */
+
+		.toolbar {
+			background-color: #333;
+			padding: 20px;
+			color: #fff;
+		}
+
+		.contextual_toolbar {
+			color: red;
+			border: 1px solid;
+			display: block;
+			width: 355px;
+			height: 55px;
+			z-index: 9999999;
+			position: absolute;
+			top: 0;
+			left: 300px;
+		}
+
+		.contextual_menu_container {
+			/* border: 1px solid #ccc; */
+			display: block;
+			position: absolute;
+			top: 0;
+			width: 340px;
+		}
+		.contextual_menu_header {
+			background-color: #333;
+			color: #fff;
+			padding: 10px;
+			position: relative;
+		}
+		.contextual_menu_buttons_container {
+			background-color: #fff;
+			padding: 10px;
+		}
+
+		div#close_menu {
+			position: absolute;
+			right: 6px;
+			top: 4px;
+			width: 20px;
+			height: 20px;
+			background-color: orange;
+			text-align: center;
+			color: #333;
+			cursor: pointer;
+		}
+		#contextual_menu_container.collapsed .contextual_menu_buttons_container {
+			display: none;
+		}
+
+		button.btn.big_button {
+			background-color: #EE7623;
+			padding: 20px 30px;
+			border: none;
+			box-shadow: none;
+			text-transform: uppercase;
+			color: #fff;
+			font-size: 18px;
+			cursor: pointer;
+		}
+		#add_products_button{
+			display:none;
+		}
+		#add_products_button.active{
+			display: block;
+		}
+		.category_menu{
+			display:none;
+		}
+		.category_menu.active {
+			display: flex;
+			width: 100%;
+			justify-content: space-around;
+		}
+		span.icon {
+			width: 25px;
+			height: 25px;
+			background-color: #EE7623;
+			display: block;
+			border-radius: 50%;
+		}
+		.cat_button{
+			cursor: pointer;
+		}
+		span.current_color_circle {
+			width: 34px;
+			height: 34px;
+			display: block;
+			background-color: red;
+			border-radius: 50%;
+		}
+		#color_picker_container{
+			position: relative;
+		}
+		#color_picker_menu {
+			height: 200px;
+			width: 90px;
+			background-color: #fff;
+			position: absolute;
+			z-index: 9;
+			display:none;
+		}
+		#color_picker_container.active #color_picker_menu{
+			display: block;
+		}
+		.color_option {
+			width: 30px;
+			height: 30px;
+			display: inline-block;
+			
+			border-radius: 50%;
+			margin: 10px;
+		}
+		.color_option.red{
+			background-color: red;
+		}
+		.color_option.blue{
+			background-color: blue;
+		}
+		.color_option.orange{
+			background-color: orange;
+		}
+	</style>
+
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+	<script src="fabric.min.js"></script>
+</head>
+
+<body>
+
+
+
+	<div class="toolbar">
+
+
+		<button id="add_products_button" class="btn big_button active">Add Products</button>
+
+
+		<div id="category_menu" class="category_menu">
+			<div id="cat_button_up_lights" class="cat_button">
+				<span class="icon"></span>
+				<span class="label">Up Lights</span>
+			</div>
+			<div id="cat_button_up_lights" class="cat_button">
+				<span class="icon"></span>
+				<span class="label">Path Lights</span>
+			</div>		
+			<div id="cat_button_up_lights" class="cat_button">
+				<span class="icon"></span>
+				<span class="label">Wall Lights</span>
+			</div>	
+			<div id="cat_button_up_lights" class="cat_button">
+				<span class="icon"></span>
+				<span class="label">Down Lights</span>
+			</div>
+			<div id="cat_button_up_lights" class="cat_button">
+				<span class="icon"></span>
+				<span class="label">In-Grade Lights</span>
+			</div>	
+			<div id="cat_button_up_lights" class="cat_button">
+				<span class="icon"></span>
+				<span class="label">Specialty Lights</span>
+			</div>	
+			
+			<div id="color_picker_container">
+				<div id="color_picker_button">
+					<span id="current_color_circle" class="current_color_circle"></span>
+				</div>
+				
+				<span>Color Picker</span>
+
+				<div id="color_picker_menu">
+					<div class="color_option red" data-color="red"></div>
+					<div class="color_option blue" data-color="blue"></div>
+					<div class="color_option orange" data-color="orange"></div>
+				</div>
+			</div>
+
+			<button id="close_cats_button" class="btn big_button">Close</button>
+		</div>
+
+
+
+		<div class="buttons_container">
+			<!-- <button id="addMo">Add Mo!</button>
+			<button id="export">Export to JSON</button>
+			<button id="loadCanvas">Load Canvas JSON</button> -->
+	
+			<!-- <button id="mode">Toggle Add Mode</button> -->
+			<div id="mode_display"></div>
+		</div>
+
+	</div>
+
+
+
+
+
+
+
+
+	<div class="container">
+			
+		<div class="canvas_container" id="canvas_container">
+
+
+			<canvas id="myCanvas" width="1200" height="800"></canvas>
+
+
+			<div id="contextual_menu_container" class="contextual_menu_container btn-group">
+
+				<div class="contextual_menu_header">
+					<span class="dot_sku">NP-3LED-FB</span>
+					<div id="close_menu">X</div>
+				</div>
+
+
+				<div class="contextual_menu_buttons_container">
+
+					<button type="button" class="btn button_color">
+						<span class="icon color"></span>
+						<span class="button_label">Color</span>
+					</button>
+
+					<button type="button" class="btn button_delete" id="delete_button">
+						<span class="icon delete"></span>
+						<span class="button_label">Delete</span>
+					</button>
+
+					<button type="button" class="btn button_edit">
+						<span class="icon edit"></span>
+						<span class="button_label">Edit</span>
+					</button>
+
+					<button type="button" class="btn button_clone">
+						<span class="icon clone"></span>
+						<span class="button_label">Clone</span>
+					</button>
+
+					<button type="button" class="btn button_groups">
+						<span class="icon groups"></span>
+						<span class="button_label">Groups</span>
+					</button>
+
+					<button type="button" class="btn button_favorites">
+						<span class="icon favorites"></span>
+						<span class="button_label">Favorites</span>
+					</button>
+
+				</div>
+
+
+			</div>
+
+
+
+
+
+
+
+		</div>
+
+	</div>
+
+
+
+
+
+
+
+
+
+	<script>
+
+
+		//Create variables -----------------------------------------------------
+
+		var canvas = new fabric.Canvas('myCanvas');
+		var myButton = document.getElementById('addMo');
+		var resizeButton = document.getElementById('resize_button');
+
+		var modeButton = document.getElementById('mode');
+		var modeDisplay = document.getElementById('mode_display');
+
+		let addMode = false;
+
+		var closeContextualMenuButton = document.getElementById('close_menu');
+
+
+		var deleteDotButton = document.getElementById('delete_button');
+		
+		var addProductsButton = document.getElementById('add_products_button');
+
+		var categoryMenu = document.getElementById('category_menu');
+		var closeCatsButton = document.getElementById('close_cats_button');
+
+
+		var colorPickerContainer = document.getElementById('color_picker_container');
+		var colorPickerButton = document.getElementById('color_picker_button');
+		var colorPickerMenu = document.getElementById('color_picker_menu');
+
+		colorPickerButton.onclick = function(){
+			colorPickerContainer.classList.toggle('active');
+		}
+
+		var currentColorCircle = document.getElementById('current_color_circle');
+
+
+		var color_options = document.querySelectorAll('.color_option');
+
+		let currentDotColor = 'orange';
+
+		for (const color_option of color_options) {
+			color_option.addEventListener('click', function(event) {
+				currentDotColor = this.dataset.color;
+				
+				currentColorCircle.style.backgroundColor = currentDotColor;
+				colorPickerContainer.classList.toggle('active');
+				// var selected = canvas.getActiveObjects(),
+				// selGroup = new fabric.ActiveSelection(selected, {
+				// 	canvas: canvas
+				// });
+				// console.log('selected: ', selected);
+				// for(var i=0; i < selected.length; i++){
+				// 	//console.log('cooool');
+				// 	changeObjectsFill(selected[i]._objects[0]);
+				// 	//selected[i]._objects[0].fill = currentDotColor;
+				// 	//canvas.renderAll.bind(canvas);
+				// 	selGroup.set('dirty',true);
+    			// 	canvas.renderAll();
+					
+				// }
+				//var selected = canvas.getActiveObjects();
+				//selGroup.set({'fill': currentDotColor});
+				//canvas.getActiveObjects().set("fill", currentDotColor);
+            	//canvas.renderAll();
+				console.log('currentDotColor: ', currentDotColor);
+			});
+		}
+
+
+		function changeObjectsFill(object) {
+			//if (object == null) { return; }
+
+			object.set('fill', currentDotColor);
+			//canvas.building.objectCaching = false;
+			//canvas.renderAll.bind(canvas);
+			//canvas.getActiveObject().set('fill', currentDotColor)
+			//canvas.requestRenderAll();
+			//canvas.renderAll();
+
+		}
+
+		// color_options.addEventListener('click', function(){
+		// 	currentDotColor = this.dataset.color;
+		// 	console.log('currentDotColor: ', currentDotColor);
+		// });
+		
+		//color_option.dataset.color // red
+
+
+		//Set canvas background image
+		canvas.setBackgroundImage('example_area.png', canvas.renderAll.bind(canvas));
+
+		//Set properties for all canvas objects
+		fabric.Object.prototype.borderColor = 'white';
+		fabric.Object.prototype.cornerColor = 'white';
+		fabric.Object.prototype.cornerSize = 8;
+		fabric.Object.prototype.transparentCorners = false;
+		fabric.Object.prototype.padding = 8;
+		fabric.Object.prototype.borderDashArray = [3, 3];
+		//fabric.Object.prototype.hasControls = false;
+
+
+		//Generate new dot and fixture text
+		let new_dot_x = 100;
+		let new_dot_y = 150;
+
+		let new_dot_text_x = 120;
+		let new_dot_text_y = 210;
+
+
+		// Plotted point contextual menu --------------------------------------------
+
+		var contextual_menu = document.getElementById('contextual_menu_container');
+
+		function init(){
+			contextual_menu.style.zIndex = '-1';
+		}
+
+		init();
+
+
+
+		closeContextualMenuButton.onclick = function() {
+			contextual_menu.classList.toggle('collapsed');
+		}
+
+		deleteDotButton.addEventListener('click', function () {
+			console.log('you clicked delete button');
+			deleteObj();
+		});
+
+		deleteObj = function() {
+			var selected = canvas.getActiveObjects();
+			if (selected) {
+				if (confirm('Deleted selected?')) {
+					canvas.remove(...selected);
+				}
+				canvas.discardActiveObject().renderAll();
+			}
+		};
+
+
+		addProductsButton.onclick = function(){
+			this.classList.toggle('active');
+			categoryMenu.classList.toggle('active');
+			addMode = !addMode;
+			modeDisplay.innerHTML = 'Add mode is: '+addMode;
+		}
+
+		closeCatsButton.onclick = function(){
+			categoryMenu.classList.toggle('active');
+			addProductsButton.classList.toggle('active');
+			addMode = !addMode;
+			modeDisplay.innerHTML = 'Add mode is: '+addMode;
+		}
+
+
+
+		// Mode button toggle -----------------------------
+		// modeButton.addEventListener('click', function () {
+
+		// 	addMode = !addMode;
+		// 	modeDisplay.innerHTML = 'Add mode is: '+addMode;
+		// 	console.log('you clicked mode button');
+
+		// });
+
+
+		function getMouseCoords(event){
+			var pointer = canvas.getPointer(event);
+			var posX = pointer.x;
+			var posY = pointer.y;
+			var coords = {
+				x:posX,
+				y:posY
+			}
+			console.log(posX+", "+posY);    // Log to console
+			console.log('coords: ', coords);
+			return coords;
+		}
+
+
+
+
+
+
+
+
+
+		// Generate shape when user clicks canvas -----------------------------------
+
+		canvas.on('mouse:down', function(options) {
+
+			console.log('canvas event mouse down!');
+
+			let mouseCoords = getMouseCoords();
+
+			console.log('mouseCoords x: ', mouseCoords.x);
+
+			if(addMode == true){
+
+
+				var dot = new fabric.Circle({
+					left: mouseCoords.x,
+					top: mouseCoords.y,
+					fill: currentDotColor,
+					width: 32,
+					height: 32,
+					radius: 16,
+					hasRotatingPoint: false,
+					lockScalingX: true,
+					lockScalingY: true
+				});
+
+				var fixture_code = new fabric.Text('NP', {
+					fontFamily: 'Arial',
+					fontWeight: 'bold',
+					fontSize: 14,
+					textAlign: 'center',
+					originX: 'center',
+					originY: 'center',
+					left: (mouseCoords.x + 15),
+					top: (mouseCoords.y + 44),
+					fill: 'white'
+				});
+
+				var dot_and_text = new fabric.Group([dot, fixture_code], {
+					// any group attributes here
+					hasRotatingPoint: false,
+					lockScalingX: true,
+					lockScalingY: true,
+					padding: 5
+				});
+
+				positionContextualMenu(dot_and_text);
+				canvas.setActiveObject(dot_and_text);
+				canvas.add(dot_and_text);
+				canvas.renderAll();
+
+			}
+
+
+		});
+
+
+		// ---------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		//Get coordinates for any given dot
+		function getCoords(oCoords) {
+			return {
+				tl: new fabric.Point(oCoords.tl.x, oCoords.tl.y),
+				tr: new fabric.Point(oCoords.tr.x, oCoords.tr.y),
+				bl: new fabric.Point(oCoords.bl.x, oCoords.bl.y),
+				br: new fabric.Point(oCoords.br.x, oCoords.br.y)
+			};
+		}
+
+		// Position contextual menu close to selected object on Canvas
+		function positionContextualMenu(obj) {
+			var absCoords = canvas.getAbsoluteCoords(obj);
+			
+			console.log('absCoords: ', absCoords);
+			contextual_menu.style.left = (absCoords.left - (contextual_menu.clientWidth/2)) + 'px';
+			contextual_menu.style.top = (absCoords.top - 70) + 'px';
+		}
+
+		// Add new method to Canvas object using prototypal inheritance!
+		fabric.Canvas.prototype.getAbsoluteCoords = function (object) {
+			return {
+				left: object.left + this._offset.left,
+				top: object.top + this._offset.top
+			};
+		}
+
+
+
+
+		// Add event handler when a new object on canvas is created, that will position the contextual menu
+		canvas.on('selection:created', function (e) {
+			var obj = e.target;
+			contextual_menu.style.zIndex = '1'; //make contextual menu visible
+			positionContextualMenu(obj); //position contextual menu
+			console.log('selected object');
+		});
+
+
+		// canvas.on('selection', function(e){
+		// 	var obj = e.target;
+		// 	contextual_menu.style.zIndex = '1'; //make contextual menu visible
+		// 	positionContextualMenu(obj); //position contextual menu
+		// });
+
+
+
+
+		// Add event handler when a new object is de-selected, hide contextual menu
+		canvas.on('selection:cleared', function (e) {
+			var obj = e.target;
+			contextual_menu.style.left = '0px';
+			contextual_menu.style.top = '0px';
+			contextual_menu.style.zIndex = '-1';
+			console.log('you deselected!!!!');
+		});
+
+
+
+
+		//Displays coordinates and restricts dragging outside of canvas boundary for a given dot
+		canvas.on('object:moving', function (e) {
+			var obj = e.target;
+			var canvas = obj.canvas;
+			var top = obj.top;
+			var left = obj.left;
+			var zoom = canvas.getZoom();
+			var pan_x = canvas.viewportTransform[4];
+			var pan_y = canvas.viewportTransform[5];
+
+			var coords = obj.calcCoords();
+			var left = coords.tl.x;
+			var top = coords.tl.y;
+
+			// width & height we are constraining to being calculated by applying the inverse of the current viewportTransform
+			var c_width = canvas.width / zoom;
+			var c_height = canvas.height / zoom;
+
+			var w = obj.width * obj.scaleX;
+			var left_adjust, right_adjust;
+
+			console.log({ left: left, top: top });
+
+			positionContextualMenu(obj); // Re-position contextual menu when object is being dragged around canvas
+
+			if (obj.originX == 'center') {
+				left_adjust = right_adjust = w / 2;
+			} else {
+				left_adjust = 0;
+				right_adjust = w;
+			}
+
+			var h = obj.height * obj.scaleY;
+			var top_adjust, bottom_adjust;
+
+			if (obj.originY == 'center') {
+				top_adjust = bottom_adjust = h / 2;
+			} else {
+				top_adjust = 0;
+				bottom_adjust = h;
+			}
+
+			// if you need margins set them here
+			var top_margin = 0;
+			var bottom_margin = 0;
+			var left_margin = 0;
+			var right_margin = 0;
+
+			var top_bound = top_margin + top_adjust - pan_y;
+			var bottom_bound = c_height - bottom_adjust - bottom_margin - pan_y;
+			var left_bound = left_margin + left_adjust - pan_x;
+			var right_bound = c_width - right_adjust - right_margin - pan_x;
+
+			if (w > c_width) {
+				obj.set('left', left_bound);
+			} else {
+				obj.set('left', Math.min(Math.max(left, left_bound), right_bound));
+			}
+
+			if (h > c_height) {
+				obj.set('top', top_bound);
+			} else {
+				obj.set('top', Math.min(Math.max(top, top_bound), bottom_bound));
+			}
+		});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		//Add new object functionality -------------------------------------
+
+		// myButton.addEventListener('click', function () {
+			
+		// 	if (is_large_canvas) {
+		// 		var dot = new fabric.Circle({
+		// 			left: (new_dot_x += 20),
+		// 			top: (new_dot_y += 20),
+		// 			fill: 'red',
+		// 			width: 50,
+		// 			height: 50,
+		// 			radius: 20,
+		// 			hasRotatingPoint: false,
+		// 			lockScalingX: true,
+		// 			lockScalingY: true
+		// 		});
+
+		// 		var fixture_code = new fabric.Text('NP', {
+		// 			fontFamily: 'Arial',
+		// 			fontWeight: 'bold',
+		// 			fontSize: 20,
+		// 			textAlign: 'center',
+		// 			originX: 'center',
+		// 			originY: 'center',
+		// 			left: (new_dot_text_x += 20),
+		// 			top: (new_dot_text_y += 20),
+		// 			fill: 'white'
+		// 		});
+
+		// 		var dot_and_text = new fabric.Group([dot, fixture_code], {
+		// 			// any group attributes here
+		// 			hasRotatingPoint: false,
+		// 			lockScalingX: true,
+		// 			lockScalingY: true,
+		// 			padding: 8
+		// 		});
+		// 		positionContextualMenu(dot_and_text);
+		// 	} else {
+		// 		var dot = new fabric.Circle({
+		// 			left: (new_dot_x += 20),
+		// 			top: (new_dot_y += 20),
+		// 			fill: 'red',
+		// 			width: 32,
+		// 			height: 32,
+		// 			radius: 16,
+		// 			hasRotatingPoint: false,
+		// 			lockScalingX: true,
+		// 			lockScalingY: true
+		// 		});
+
+		// 		var fixture_code = new fabric.Text('NP', {
+		// 			fontFamily: 'Arial',
+		// 			fontWeight: 'bold',
+		// 			fontSize: 13,
+		// 			textAlign: 'center',
+		// 			originX: 'center',
+		// 			originY: 'center',
+		// 			left: (new_dot_text_x += 20),
+		// 			top: (new_dot_text_y += 20),
+		// 			fill: 'white'
+		// 		});
+
+		// 		var dot_and_text = new fabric.Group([dot, fixture_code], {
+		// 			// any group attributes here
+		// 			hasRotatingPoint: false,
+		// 			lockScalingX: true,
+		// 			lockScalingY: true,
+		// 			padding: 5
+		// 		});
+
+		// 		positionContextualMenu(dot_and_text);
+		// 	}
+
+		// 	canvas.setActiveObject(dot_and_text);
+		// 	canvas.add(dot_and_text);
+		// 	canvas.renderAll();
+		// 	console.log(dot_and_text.aCoords);
+		// });
+
+		// // ---------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		// //Export testing -------------------------------------------------------
+		// var exportButton = document.getElementById('export');
+
+		// exportButton.addEventListener('click', function () {
+		// 	var json = JSON.stringify(canvas.toJSON(['coolness', 'dudeness']));
+		// 	//var json = JSON.stringify(canvas.toJSON());
+		// 	//var json = JSON.stringify(canvas);
+		// 	console.log(json);
+		// });
+		// // ---------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		// //Load testing -------------------------------------------------------
+		// var loadButton = document.getElementById('loadCanvas');
+
+		// loadButton.addEventListener('click', function () {
+
+		// 	theJSON = {
+		// 		"version": "3.2.0",
+		// 		"coolness": {
+		// 			"cool": "yup"
+		// 		},
+		// 		"dudeness": {
+		// 			"dude": "yup"
+		// 		},
+		// 		"objects": [
+		// 			{
+		// 				"type": "group",
+		// 				"version": "3.2.0",
+		// 				"originX": "left",
+		// 				"originY": "top",
+		// 				"left": 557,
+		// 				"top": 100,
+		// 				"width": 41,
+		// 				"height": 71.8,
+		// 				"fill": "rgb(0,0,0)",
+		// 				"stroke": null,
+		// 				"strokeWidth": 0,
+		// 				"strokeDashArray": null,
+		// 				"strokeLineCap": "butt",
+		// 				"strokeDashOffset": 0,
+		// 				"strokeLineJoin": "miter",
+		// 				"strokeMiterLimit": 4,
+		// 				"scaleX": 1,
+		// 				"scaleY": 1,
+		// 				"angle": 0,
+		// 				"flipX": false,
+		// 				"flipY": false,
+		// 				"opacity": 1,
+		// 				"shadow": null,
+		// 				"visible": true,
+		// 				"clipTo": null,
+		// 				"backgroundColor": "",
+		// 				"fillRule": "nonzero",
+		// 				"paintFirst": "fill",
+		// 				"globalCompositeOperation": "source-over",
+		// 				"transformMatrix": null,
+		// 				"skewX": 0,
+		// 				"skewY": 0,
+		// 				"objects": [
+		// 					{
+		// 						"type": "circle",
+		// 						"version": "3.2.0",
+		// 						"originX": "left",
+		// 						"originY": "top",
+		// 						"left": -20.5,
+		// 						"top": -35.9,
+		// 						"width": 40,
+		// 						"height": 40,
+		// 						"fill": "red",
+		// 						"stroke": null,
+		// 						"strokeWidth": 1,
+		// 						"strokeDashArray": null,
+		// 						"strokeLineCap": "butt",
+		// 						"strokeDashOffset": 0,
+		// 						"strokeLineJoin": "miter",
+		// 						"strokeMiterLimit": 4,
+		// 						"scaleX": 1,
+		// 						"scaleY": 1,
+		// 						"angle": 0,
+		// 						"flipX": false,
+		// 						"flipY": false,
+		// 						"opacity": 1,
+		// 						"shadow": null,
+		// 						"visible": true,
+		// 						"clipTo": null,
+		// 						"backgroundColor": "",
+		// 						"fillRule": "nonzero",
+		// 						"paintFirst": "fill",
+		// 						"globalCompositeOperation": "source-over",
+		// 						"transformMatrix": null,
+		// 						"skewX": 0,
+		// 						"skewY": 0,
+		// 						"radius": 20,
+		// 						"startAngle": 0,
+		// 						"endAngle": 6.283185307179586
+		// 					},
+		// 					{
+		// 						"type": "text",
+		// 						"version": "3.2.0",
+		// 						"originX": "center",
+		// 						"originY": "center",
+		// 						"left": -0.5,
+		// 						"top": 24.1,
+		// 						"width": 27.78,
+		// 						"height": 22.6,
+		// 						"fill": "white",
+		// 						"stroke": null,
+		// 						"strokeWidth": 1,
+		// 						"strokeDashArray": null,
+		// 						"strokeLineCap": "butt",
+		// 						"strokeDashOffset": 0,
+		// 						"strokeLineJoin": "miter",
+		// 						"strokeMiterLimit": 4,
+		// 						"scaleX": 1,
+		// 						"scaleY": 1,
+		// 						"angle": 0,
+		// 						"flipX": false,
+		// 						"flipY": false,
+		// 						"opacity": 1,
+		// 						"shadow": null,
+		// 						"visible": true,
+		// 						"clipTo": null,
+		// 						"backgroundColor": "",
+		// 						"fillRule": "nonzero",
+		// 						"paintFirst": "fill",
+		// 						"globalCompositeOperation": "source-over",
+		// 						"transformMatrix": null,
+		// 						"skewX": 0,
+		// 						"skewY": 0,
+		// 						"text": "NP",
+		// 						"fontSize": 20,
+		// 						"fontWeight": "bold",
+		// 						"fontFamily": "Arial",
+		// 						"fontStyle": "normal",
+		// 						"lineHeight": 1.16,
+		// 						"underline": false,
+		// 						"overline": false,
+		// 						"linethrough": false,
+		// 						"textAlign": "center",
+		// 						"textBackgroundColor": "",
+		// 						"charSpacing": 0,
+		// 						"styles": {}
+		// 					}
+		// 				]
+		// 			},
+		// 			{
+		// 				"type": "group",
+		// 				"version": "3.2.0",
+		// 				"originX": "left",
+		// 				"originY": "top",
+		// 				"left": 1006,
+		// 				"top": 105,
+		// 				"width": 41,
+		// 				"height": 71.8,
+		// 				"fill": "rgb(0,0,0)",
+		// 				"stroke": null,
+		// 				"strokeWidth": 0,
+		// 				"strokeDashArray": null,
+		// 				"strokeLineCap": "butt",
+		// 				"strokeDashOffset": 0,
+		// 				"strokeLineJoin": "miter",
+		// 				"strokeMiterLimit": 4,
+		// 				"scaleX": 1,
+		// 				"scaleY": 1,
+		// 				"angle": 0,
+		// 				"flipX": false,
+		// 				"flipY": false,
+		// 				"opacity": 1,
+		// 				"shadow": null,
+		// 				"visible": true,
+		// 				"clipTo": null,
+		// 				"backgroundColor": "",
+		// 				"fillRule": "nonzero",
+		// 				"paintFirst": "fill",
+		// 				"globalCompositeOperation": "source-over",
+		// 				"transformMatrix": null,
+		// 				"skewX": 0,
+		// 				"skewY": 0,
+		// 				"objects": [
+		// 					{
+		// 						"type": "circle",
+		// 						"version": "3.2.0",
+		// 						"originX": "left",
+		// 						"originY": "top",
+		// 						"left": -20.5,
+		// 						"top": -35.9,
+		// 						"width": 40,
+		// 						"height": 40,
+		// 						"fill": "red",
+		// 						"stroke": null,
+		// 						"strokeWidth": 1,
+		// 						"strokeDashArray": null,
+		// 						"strokeLineCap": "butt",
+		// 						"strokeDashOffset": 0,
+		// 						"strokeLineJoin": "miter",
+		// 						"strokeMiterLimit": 4,
+		// 						"scaleX": 1,
+		// 						"scaleY": 1,
+		// 						"angle": 0,
+		// 						"flipX": false,
+		// 						"flipY": false,
+		// 						"opacity": 1,
+		// 						"shadow": null,
+		// 						"visible": true,
+		// 						"clipTo": null,
+		// 						"backgroundColor": "",
+		// 						"fillRule": "nonzero",
+		// 						"paintFirst": "fill",
+		// 						"globalCompositeOperation": "source-over",
+		// 						"transformMatrix": null,
+		// 						"skewX": 0,
+		// 						"skewY": 0,
+		// 						"radius": 20,
+		// 						"startAngle": 0,
+		// 						"endAngle": 6.283185307179586
+		// 					},
+		// 					{
+		// 						"type": "text",
+		// 						"version": "3.2.0",
+		// 						"originX": "center",
+		// 						"originY": "center",
+		// 						"left": -0.5,
+		// 						"top": 24.1,
+		// 						"width": 27.78,
+		// 						"height": 22.6,
+		// 						"fill": "white",
+		// 						"stroke": null,
+		// 						"strokeWidth": 1,
+		// 						"strokeDashArray": null,
+		// 						"strokeLineCap": "butt",
+		// 						"strokeDashOffset": 0,
+		// 						"strokeLineJoin": "miter",
+		// 						"strokeMiterLimit": 4,
+		// 						"scaleX": 1,
+		// 						"scaleY": 1,
+		// 						"angle": 0,
+		// 						"flipX": false,
+		// 						"flipY": false,
+		// 						"opacity": 1,
+		// 						"shadow": null,
+		// 						"visible": true,
+		// 						"clipTo": null,
+		// 						"backgroundColor": "",
+		// 						"fillRule": "nonzero",
+		// 						"paintFirst": "fill",
+		// 						"globalCompositeOperation": "source-over",
+		// 						"transformMatrix": null,
+		// 						"skewX": 0,
+		// 						"skewY": 0,
+		// 						"text": "NP",
+		// 						"fontSize": 20,
+		// 						"fontWeight": "bold",
+		// 						"fontFamily": "Arial",
+		// 						"fontStyle": "normal",
+		// 						"lineHeight": 1.16,
+		// 						"underline": false,
+		// 						"overline": false,
+		// 						"linethrough": false,
+		// 						"textAlign": "center",
+		// 						"textBackgroundColor": "",
+		// 						"charSpacing": 0,
+		// 						"styles": {}
+		// 					}
+		// 				]
+		// 			},
+		// 			{
+		// 				"type": "group",
+		// 				"version": "3.2.0",
+		// 				"originX": "left",
+		// 				"originY": "top",
+		// 				"left": 491,
+		// 				"top": 508,
+		// 				"width": 41,
+		// 				"height": 71.8,
+		// 				"fill": "rgb(0,0,0)",
+		// 				"stroke": null,
+		// 				"strokeWidth": 0,
+		// 				"strokeDashArray": null,
+		// 				"strokeLineCap": "butt",
+		// 				"strokeDashOffset": 0,
+		// 				"strokeLineJoin": "miter",
+		// 				"strokeMiterLimit": 4,
+		// 				"scaleX": 1,
+		// 				"scaleY": 1,
+		// 				"angle": 0,
+		// 				"flipX": false,
+		// 				"flipY": false,
+		// 				"opacity": 1,
+		// 				"shadow": null,
+		// 				"visible": true,
+		// 				"clipTo": null,
+		// 				"backgroundColor": "",
+		// 				"fillRule": "nonzero",
+		// 				"paintFirst": "fill",
+		// 				"globalCompositeOperation": "source-over",
+		// 				"transformMatrix": null,
+		// 				"skewX": 0,
+		// 				"skewY": 0,
+		// 				"objects": [
+		// 					{
+		// 						"type": "circle",
+		// 						"version": "3.2.0",
+		// 						"originX": "left",
+		// 						"originY": "top",
+		// 						"left": -20.5,
+		// 						"top": -35.9,
+		// 						"width": 40,
+		// 						"height": 40,
+		// 						"fill": "red",
+		// 						"stroke": null,
+		// 						"strokeWidth": 1,
+		// 						"strokeDashArray": null,
+		// 						"strokeLineCap": "butt",
+		// 						"strokeDashOffset": 0,
+		// 						"strokeLineJoin": "miter",
+		// 						"strokeMiterLimit": 4,
+		// 						"scaleX": 1,
+		// 						"scaleY": 1,
+		// 						"angle": 0,
+		// 						"flipX": false,
+		// 						"flipY": false,
+		// 						"opacity": 1,
+		// 						"shadow": null,
+		// 						"visible": true,
+		// 						"clipTo": null,
+		// 						"backgroundColor": "",
+		// 						"fillRule": "nonzero",
+		// 						"paintFirst": "fill",
+		// 						"globalCompositeOperation": "source-over",
+		// 						"transformMatrix": null,
+		// 						"skewX": 0,
+		// 						"skewY": 0,
+		// 						"radius": 20,
+		// 						"startAngle": 0,
+		// 						"endAngle": 6.283185307179586
+		// 					},
+		// 					{
+		// 						"type": "text",
+		// 						"version": "3.2.0",
+		// 						"originX": "center",
+		// 						"originY": "center",
+		// 						"left": -0.5,
+		// 						"top": 24.1,
+		// 						"width": 27.78,
+		// 						"height": 22.6,
+		// 						"fill": "white",
+		// 						"stroke": null,
+		// 						"strokeWidth": 1,
+		// 						"strokeDashArray": null,
+		// 						"strokeLineCap": "butt",
+		// 						"strokeDashOffset": 0,
+		// 						"strokeLineJoin": "miter",
+		// 						"strokeMiterLimit": 4,
+		// 						"scaleX": 1,
+		// 						"scaleY": 1,
+		// 						"angle": 0,
+		// 						"flipX": false,
+		// 						"flipY": false,
+		// 						"opacity": 1,
+		// 						"shadow": null,
+		// 						"visible": true,
+		// 						"clipTo": null,
+		// 						"backgroundColor": "",
+		// 						"fillRule": "nonzero",
+		// 						"paintFirst": "fill",
+		// 						"globalCompositeOperation": "source-over",
+		// 						"transformMatrix": null,
+		// 						"skewX": 0,
+		// 						"skewY": 0,
+		// 						"text": "NP",
+		// 						"fontSize": 20,
+		// 						"fontWeight": "bold",
+		// 						"fontFamily": "Arial",
+		// 						"fontStyle": "normal",
+		// 						"lineHeight": 1.16,
+		// 						"underline": false,
+		// 						"overline": false,
+		// 						"linethrough": false,
+		// 						"textAlign": "center",
+		// 						"textBackgroundColor": "",
+		// 						"charSpacing": 0,
+		// 						"styles": {}
+		// 					}
+		// 				]
+		// 			}
+		// 		],
+		// 		"backgroundImage": {
+		// 			"type": "image",
+		// 			"version": "3.2.0",
+		// 			"originX": "left",
+		// 			"originY": "top",
+		// 			"left": 0,
+		// 			"top": 0,
+		// 			"width": 1278,
+		// 			"height": 766,
+		// 			"fill": "rgb(0,0,0)",
+		// 			"stroke": null,
+		// 			"strokeWidth": 0,
+		// 			"strokeDashArray": null,
+		// 			"strokeLineCap": "butt",
+		// 			"strokeDashOffset": 0,
+		// 			"strokeLineJoin": "miter",
+		// 			"strokeMiterLimit": 4,
+		// 			"scaleX": 1,
+		// 			"scaleY": 1,
+		// 			"angle": 0,
+		// 			"flipX": false,
+		// 			"flipY": false,
+		// 			"opacity": 1,
+		// 			"shadow": null,
+		// 			"visible": true,
+		// 			"clipTo": null,
+		// 			"backgroundColor": "",
+		// 			"fillRule": "nonzero",
+		// 			"paintFirst": "fill",
+		// 			"globalCompositeOperation": "source-over",
+		// 			"transformMatrix": null,
+		// 			"skewX": 0,
+		// 			"skewY": 0,
+		// 			"crossOrigin": "",
+		// 			"cropX": 0,
+		// 			"cropY": 0,
+		// 			"src": "file:///Users/gsaunders/Documents/Hunter/2019/08/09/example_area.png",
+		// 			"filters": []
+		// 		}
+		// 	}
+
+
+		// 	var json = JSON.stringify(theJSON);
+		// 	//var json = JSON.stringify(canvas);
+		// 	console.log(json);
+
+
+		// 	// parse the data into the canvas
+		// 	canvas.loadFromJSON(json);
+
+		// 	// re-render the canvas
+		// 	canvas.renderAll();
+
+		// 	// optional
+		// 	//canvas.calculateOffset();
+		// });
+
+		// // ---------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+		// let is_large_canvas;
+
+		// function checkCanvasSize() {
+		// 	if (canvas.width != 1200) {
+		// 		is_large_canvas = false;
+		// 	} else {
+		// 		is_large_canvas = true;
+		// 	}
+		// }
+
+		// checkCanvasSize();
+
+
+
+
+
+
+
+
+		// TESTING - Function to get canvas resolution, to use with resize function
+		// function GetCanvasAtResoution(newWidth) {
+		// 	if (canvas.width != newWidth) {
+		// 		var scaleMultiplier = newWidth / canvas.width;
+		// 		var objects = canvas.getObjects();
+		// 		for (var i in objects) {
+		// 			objects[i].scaleX = objects[i].scaleX * scaleMultiplier;
+		// 			objects[i].scaleY = objects[i].scaleY * scaleMultiplier;
+		// 			objects[i].left = objects[i].left * scaleMultiplier;
+		// 			objects[i].top = objects[i].top * scaleMultiplier;
+		// 			objects[i].setCoords();
+		// 		}
+		// 		var obj = canvas.backgroundImage;
+		// 		if (obj) {
+		// 			obj.scaleX = obj.scaleX * scaleMultiplier;
+		// 			obj.scaleY = obj.scaleY * scaleMultiplier;
+		// 		}
+
+		// 		canvas.discardActiveObject();
+		// 		canvas.setWidth(canvas.getWidth() * scaleMultiplier);
+		// 		canvas.setHeight(canvas.getHeight() * scaleMultiplier);
+		// 		canvas.renderAll();
+		// 		canvas.calcOffset();
+		// 	} else {
+		// 	}
+		// }
+
+
+
+
+
+
+		// TESTING - Functions to programmatically add/remove elements from DOM
+		// function addElement(parentId, elementTag, elementId, html) {
+		// 	// Adds an element to the document
+		// 	var p = document.getElementById(parentId);
+		// 	var newElement = document.createElement(elementTag);
+		// 	newElement.setAttribute('id', elementId);
+		// 	newElement.innerHTML = html;
+		// 	p.appendChild(newElement);
+		// }
+
+		// function removeElement(elementId) {
+		// 	// Removes an element from the document
+		// 	var element = document.getElementById(elementId);
+		// 	element.parentNode.removeChild(element);
+		// }
+
+
+
+
+	</script>
+</body>
+
+</html>
